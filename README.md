@@ -110,7 +110,7 @@ On n’utilise pas de signaux, pour la communication inter-process
 On va utiliser des pipes pour les échanges de cartes, pour la communication entre les processus game et player.
 
 
-## Plan d’implémentation : 
+### Plan d’implémentation : 
 
 Nous commencerons par créer une structure carte qui a deux attributs : un attribut “moyen de transport” qui vaut avion, train, voiture, vélo ou chaussures et un entier compris entre 1 et 5. Une carte sera donc de la forme avion 3, voiture 1, …
 Ensuite, on implémentera  player et game sans les sémaphores et on effectuera des tests avec seulement 2 joueurs pour s’assurer de la bonne communication entre les 2 processus.
