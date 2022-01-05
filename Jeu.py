@@ -27,16 +27,20 @@ def Player(i, ):
         if state[i] == 1:
             showcartes(i)
             showechanges()
+            supp = input("Voulez-vous supprimer une de vos offres? (oui/non)")
+            if supp = "oui":
+                suppof = input("Laquelle?")
+                m = (suppof).encode()
+                mq.send(m, type = 4)
+
             echan = input("Voulez-vous accepter un des échanges proposés? (oui/non)")
-            if echan == oui:
+            if echan == "oui":
                 state[i] = 2
             else :
-                off = input ("Voulez-vouz faire une offre? (oui/non)")
-                if off == oui:
+                off = input ("Voulez-vouz faire une nouvelle offre? (oui/non)")
+                if off == "oui":
                     state[i] = 3
-                else:
-
-
+                
 
         #échanger ses cartes contre une offre existante
         if state[i] == 2:
