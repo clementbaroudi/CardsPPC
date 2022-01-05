@@ -26,7 +26,7 @@ def echangercartes(i):
 
 def Player(i, ):
     while True :
-        
+
         if state[i] == 1:
             """
             showcartes(i)
@@ -43,7 +43,11 @@ def Player(i, ):
             if rep == 1:
                 state[i] = 3
 
+        #proposer un echange
         if state[i] == 2:
+            showechanges()
+            num = input("Quelle offre voulez-vous?")
+            cartesech = listeechanges[num[1]]
 
 
         #proposer une offre
@@ -78,11 +82,22 @@ def Player(i, ):
 
 """pour montrer les cartes du joueur"""
 def showcartes(i):
+    print("Voulez-vous voir vos cartes? (oui/non)")
+    rep = input()
+    if rep == oui:
+        mq.send("ok", type = 1)
 
 """ afficher tous les échanges proposés"""
-def showecahnges():
+def showechanges():
+    print("Voulez-vous voir les offres? (oui/non)")
+    rep = input()
+    if rep == oui:
+        mq.send("ok", type = 2)
+
 
 if __name__ == "__main__":
+    m = str("start").encode
+    Queue.send(m)
     nbJoueurs = int(input("Combien de joueurs y aura-t-il ?\n"))
     threads = [threading.Thread(target = Player, args = (i, )) for i in range(nbJoueurs)]
     for thread in threads:
