@@ -28,7 +28,7 @@ def Player(i, ):
             showcartes(i)
             showechanges()
             supp = input("Voulez-vous supprimer une de vos offres? (oui/non)")
-            if supp = "oui":
+            if supp == "oui":
                 suppof = input("Laquelle?")
                 m = (suppof).encode()
                 mq.send(m, type = 4)
@@ -40,12 +40,12 @@ def Player(i, ):
                 off = input ("Voulez-vouz faire une nouvelle offre? (oui/non)")
                 if off == "oui":
                     state[i] = 3
-                
+
 
         #échanger ses cartes contre une offre existante
         if state[i] == 2:
             #voir la liste des offres
-            m = str("ok"").encode()
+            m = str("ok").encode()
             mq.send(m, type = 2)
             num = input("Quelle offre voulez-vous?")
             offre = listeechanges[num]
@@ -91,7 +91,7 @@ def Player(i, ):
             showcartes(i)
             moy = input ("quel moyen de transport voulez vous echanger?")
 
-            cartes[]  # toutes les cartes de ce moyen de transport du joueurs
+            cartes=listechanges  # toutes les cartes de ce moyen de transport du joueurs
             print("Combien de cartes voulez vous échanger? ( Vous en avez " + cartes.length() + ")")
             nb = int(input())
             while nb > cartes.length() or nb > 3:
@@ -133,7 +133,7 @@ def showechanges():
     print("Voulez-vous voir les offres? (oui/non)")
     rep = input()
     if rep == oui:
-        m = str("ok"").encode()
+        m = str("ok").encode()
         mq.send(m, type = 2)
 
 
@@ -180,25 +180,27 @@ if __name__ == "__main__":
     key=128
     queue=sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
     print("Serveur en service")
-	nbJoueurs = int(input("Combien de joueurs y aura-t-il ?\n"))
-	Deck=distribuerCartes(nbJoueurs)
+    nbJoueurs = int(input("Combien de joueurs y aura-t-il ?\n"))
+    Deck=distribuerCartes(nbJoueurs)
+    print(Deck)
     with multiprocessing.Pool(processes = 4) as pool :
         listen=True
         while listen:
             requete,t = queue.receive()
-            demande = str(requete.decode())
-            if demande == "Type 1":
+            t = str(requete.decode())
+            if t == "Type 1":
+                print("")
 
-            elif demande == "Type 2":
-
-            elif demande == "Type 3":
-
-            elif demande == "Type 4":
-
-            elif demande == "Type 5":
-
-            elif demande == "Type 6":
-
+            elif t == "Type 2":
+                print("")
+            elif t == "Type 3":
+                print("")
+            elif t == "Type 4":
+                print("")
+            elif t == "Type 5":
+                print("")
+            elif t == "Type 6":
+                print("")
             else:
                 print("Requête non reconnue")
                 reponse = "Requête non reconnue"
