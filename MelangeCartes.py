@@ -24,7 +24,6 @@ for i in range(5):
         try:
             j.append(next(gen))
         except StopIteration:
-            print("Distribution terminée !")
             pass
 
 # contrôle
