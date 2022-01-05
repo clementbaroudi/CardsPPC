@@ -17,18 +17,14 @@ class Stateplayer:
     faire_offre = 3
     Sonner_cloche = 4
 
-def wait() :
 
-def echangercartes(i):
-    showcartes(i)
-    """proposer les cartes à échanger"""
 
 
 def Player(i, ):
     while True :
 
+        #wait
         if state[i] == 1:
-            """
             showcartes(i)
             showechanges()
             echan = input("Voulez-vous accepter un des échanges proposés? (oui/non)")
@@ -38,16 +34,51 @@ def Player(i, ):
                 off = input ("Voulez-vouz faire une offre? (oui/non)")
                 if off == oui:
                     state[i] = 3
-            """
-            rep = input("proposer offre = 1")
-            if rep == 1:
-                state[i] = 3
+                else:
 
-        #proposer un echange
+
+
+        #échanger ses cartes contre une offre existante
         if state[i] == 2:
-            showechanges()
+            #voir la liste des offres
+            m = str("ok"").encode()
+            mq.send(m, type = 2)
             num = input("Quelle offre voulez-vous?")
-            cartesech = listeechanges[num[1]]
+            offre = listeechanges[num]
+            nbcartes = offre[1].length() + 1
+
+            #voir les cartes du joueur
+            m = str(i).encode()
+            mq.send(m, type = 1)
+
+            print("Quelle est la première carte que vous voulez échanger? (chiffre entre 1 et 5 )")
+            nb = int(input())
+            while nb > 5 or nb < 1:
+                print ("Veuillez indiquer un nombre correct")
+                print("Quelle est la première carte que vous voulez échanger? (chiffre entre 1 et 5 )")
+                nb = int(input())
+
+            if nbcartes > 1:
+                print("Quelle est la deuxième carte que vous voulez échanger? (chiffre entre 1 et 5 )")
+                nb2 = int(input())
+                while nb2 > 5 or nb2 < 1 or nb2 == nb:
+                    print ("Veuillez indiquer un nombre correct")
+                    print("Quelle est la première carte que vous voulez échanger? (chiffre entre 1 et 5 )")
+                    nb2 = int(input())
+
+                    if nbcartes > 2:
+                        print("Quelle est la troisième carte que vous voulez échanger? (chiffre entre 1 et 5 )")
+                        nb3 = int(input())
+                        while nb3 > 5 or nb3 < 1 or nb3 == nb or nb3 == nb2:
+                            print ("Veuillez indiquer un nombre correct")
+                            print("Quelle est la première carte que vous voulez échanger? (chiffre entre 1 et 5 )")
+                            nb3 = int(input())
+
+                cartesoff = (nb, nb2, nb3)
+                m = cartesoff.encode()
+                mq.send(m, type = 5)
+
+
 
 
         #proposer une offre
@@ -57,42 +88,49 @@ def Player(i, ):
             moy = input ("quel moyen de transport voulez vous echanger?")
 
             cartes[]  # toutes les cartes de ce moyen de transport du joueurs
+            print("Combien de cartes voulez vous échanger? ( Vous en avez " + cartes.length() + ")")
+            nb = int(input())
+            while nb > cartes.length() or nb > 3:
+                print ("Veuillez indiquer un nombre correct")
+                print("Combien de cartes voulez vous échanger? ( Vous en avez " + cartes.length() + ")")
+                nb = int(input())
 
-            if cartes.lenght() > 3:
-                cartesech = cartes[0:2]
-            else:
-                cartesech = cartes
+            cartesech = cartes[0:(nb-1)] #cartes que le joueur veut échanger
+
+            m = cartesech.encode()
+            mq.send(m, type = 3)
 
 
-            occupé = True
+            """occupé = True
             while occuppe == True:
                 if not sem.acquire():
                     sem.release()
                     print("Un échange est déjà en cours, veuillez patienter")
                 else:
                     listechanges.append([i, cartesech[]])
-                    sem.release()
+                    sem.release()"""
 
-
-
-
-
+        #sonner la cloche
         if state[i] == 4:
+            m = str("ok").encode()
+            mq.send(m, type = 6)
 
 
-"""pour montrer les cartes du joueur"""
+#pour montrer les cartes du joueur
 def showcartes(i):
     print("Voulez-vous voir vos cartes? (oui/non)")
     rep = input()
     if rep == oui:
-        mq.send("ok", type = 1)
+        m = str(i).encode()
+        mq.send(m, type = 1)
 
-""" afficher tous les échanges proposés"""
+#afficher toutes les offres
 def showechanges():
     print("Voulez-vous voir les offres? (oui/non)")
     rep = input()
     if rep == oui:
-        mq.send("ok", type = 2)
+        m = str("ok"").encode()
+        mq.send(m, type = 2)
 
 
 
