@@ -4,7 +4,7 @@ import threading
 from threading import Thread,Timer, Lock, Semaphore
 import sysv_ipc
 
-
+state = 1
 """ touches
 s : supprimer
 a : ajouter
@@ -14,7 +14,7 @@ o = voir offres
 e = echanger
 """
 
-state = 3
+
 key = 42
 Queue=sysv_ipc.MessageQueue(key)
 
@@ -26,14 +26,9 @@ class Stateplayer:
     faire_offre = 3
     Sonner_cloche = 4
 
-def wait() :
-    #peut etre pas utile
-    "ok"
 
-
-def letsGo(i, state):
-    global nextstate
-    nextstate = state
+def letsGo(i):
+    global state
     #wait
     if state == 1:
         touche = input("que voulez vous faire?")
@@ -47,13 +42,13 @@ def letsGo(i, state):
 
         elif touche == "s":
             suppof = input("Laquelle? (entrez le moyen de transport)")
-            messgae = "4" + "/" + suppof
-            m = messgae.encode()
+            message = "4" + "/" +  str(i) + "/" + str(suppof)
+            m = message.encode()
             Queue.send(m)
 
 
         elif touche == "a":
-            nextstate = 3
+            state = 3
 
         elif touche == "c":
             message = "6" + "/" + str(i)
@@ -62,22 +57,20 @@ def letsGo(i, state):
 
 
         elif touche == "e":
-            nextstate = 2
+            state = 2
 
 
     #échanger ses cartes contre une offre existante
     elif state== 2:
         #voir la liste des offres
-        num = str("2" + "/" + i).encode()
-        Queue.send(num)
+        showechanges(i)
 
-        num = input("Quelle offre voulez-vous?")
-        offre = listeechanges[num]
-        nbcartes = offre[1].length() + 1
+
+        num = input("Quelle offre voulez-vous? (la première vaut 1)")
+
 
         #voir les cartes du joueur
-        m = str(i).encode()
-        Queue.send(m, type = 1)
+        showcartes(i)
 
         print("Quelle est la première carte que vous voulez échanger? (chiffre entre 1 et 5 )")
         nb = int(input())
@@ -122,7 +115,7 @@ def letsGo(i, state):
         Queue.send(m)
 
         print("votre offre a été ajoutée")
-        nextstate = 1
+        state = 1
 
 
 
@@ -135,7 +128,7 @@ def letsGo(i, state):
         Queue.send(m)
 
     print("state" , state)
-    return nextstate
+    return state
 
 """pour montrer les cartes du joueur"""
 def showcartes(i):
@@ -176,19 +169,17 @@ def showechanges(i):
                 cards = message[1]
                 print(cards)
             listen = False
-
+    nbcartes = message[2]
 
 
 
 if __name__ == "__main__":
-
     m = str("0" + "/" + "start").encode()
     # à faire : serveur envoie num du joueur
 
     print("start")
     Queue.send(m)
     print("commencer")
-    state = 1
-    actualstate = letsGo(0,state)
+
     while True:
-        letsGo(0,n)
+        letsGo(0)

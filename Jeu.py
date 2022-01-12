@@ -16,6 +16,7 @@ import os
 6: sonner la cloche
 7: recevoir cartes
 8: recevoir listeechanges
+9: envoyer nb cartes dans l'offre
 """
 
 cloche = Lock()
@@ -23,7 +24,6 @@ clock = False
 
 key=42
 Queue=sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
-
 
 
 
@@ -59,8 +59,155 @@ def entreeClavier() :
 def finPartie():
     pass
 
-def Game():
-    pass
+def Game(i):
+    listen=True
+    while listen:
+        requete,t = Queue.receive()
+        mess = str(requete.decode())
+
+        if mess :
+            print("message recu")
+            message= mess.split("/")
+            print(message)
+            type = message[0]
+            i = message[1]
+            #a faire
+            if type == "0":
+                ""
+                #compte le nb de joueurs qui entrent dans la partie et lance la partie si ça correspnd au nombre entré
+
+            #ok sem
+            #voir cartes
+            elif type == "1":
+
+                cartes.acquire()
+                print("envoi des cartes")
+                cartesjoueur = Deck[int(i)]
+
+                message = "7" + "/"
+                for o in range(5):
+                    message += str(cartesjoueur[o][0]) + " , " +str(cartesjoueur[o][1]) + " ; "
+                m = message.encode()
+                Queue.send(m)
+                print("envoi ok")
+                cartes.release()
+
+
+            #ok sem
+            # voir offres
+            elif type == "2":
+                echanges.acquire()
+                print("envoi des offres")
+
+                message = "8" + "/"
+                if listeechanges == []:
+                    message += "il n'y a pas d'offres"
+                else :
+                    for e in listeechanges:
+                        message += "joueur " + str(e[0]) + " ->  "
+                        for j in e[1]:
+                            message += str(j[0]) + " " +  str(j[1]) + ";"
+                        message += "\n"
+                m = message.encode()
+                Queue.send(m)
+                print("envoi ok")
+                echanges.release()
+
+
+            #ok sem
+            #ajouter offre
+            elif type == "3":
+                print("ajout en cours")
+                moy = message[2]
+                echanges.acquire()
+                print("semaphore ouvert")
+                cardex = []
+                p = 0
+                for e in Deck[int(i)]:
+                    if e[0] == moy and p < 3:
+                        p += 1
+                        cardex.append(e)
+                        print(cardex)
+                        print(p)
+                nbCartes = len(cardex)
+
+                listeechanges.append([i, cardex, nbCartes])
+                echanges.release()
+                print("ajout OK")
+
+            #ok sem
+            #supprimer offre
+            elif type == "4":
+                # type / i / moy
+                moy = message[2]
+                echanges.acquire()
+                print("semaphore ouvert")
+                for e in listeechanges:
+                    if e[0] == i and e[1][0][0] == moy :
+                        print("offre trouvée")
+                        listeechanges.remove(e)
+                        echanges.release()
+                        print("suppression ok")
+
+
+            #ok sem
+            #accepter une offre et echanger des cartes
+            elif type == "5":
+                # type / i / num offre / liste cartes
+                cartes.acquire()
+                echanges.acquire()
+
+                i_offre = listeechanges[message[2][0]]
+                listOf = listeechanges[message[2][1]]
+                listEx = message[3]
+                #changer les cartes du joueur qui a fait l'offre
+                k = 0
+                for e in Deck[i_offre:i_offre+5]:
+                    for f in listOf:
+                        if e == f:
+                            Deck[index(e)] = listEx[k]
+                            k += 1
+
+                #changer les cartes de l'autre joueur:
+                k = 0
+                for e in Deck[i:i+5]:
+                    for f in listEx:
+                        if e == f:
+                            Deck[index(e)] = listOf[k]
+                            k += 1
+
+                # on enlève l'offre
+                for e in listeechanges:
+                    for f in listOf:
+                        if e == f:
+                            listeechanges.remove(e)
+
+                cartes.release()
+                echanges.release()
+
+            #a faire
+            # sonner la cloche
+            elif type == "6":
+                accessSem(cartes)
+                moy = Deck[i][0]
+                c = 0
+                for e in Deck[i:i+5]:
+                    if e[0] != moy:
+                        print("Vous n'avez pas 5 cartes identiques, continuez la partie")
+                        cartes.release()
+                    else:
+                        c += 1
+                if c == 5:
+                    print("Bravo le joueur " , i , "remporte la partie!")
+
+
+
+            else:
+                print("Requête non reconnue")
+                reponse = "Requête non reconnue"
+                reponse.encode()
+                Queue.send(reponse)
+
 
 #marche pas
 def accessSem(sem):
@@ -97,164 +244,8 @@ if __name__ == "__main__":
 
     #listeechanges = [[i, liste cartes], ...]
     print(Deck)
-    with multiprocessing.Pool(processes = 4) as pool :
-        listen=True
-        while listen:
-            requete,t = Queue.receive()
-            mess = str(requete.decode())
-
-            if mess :
-                print("message recu")
-                message= mess.split("/")
-                print(message)
-                type = message[0]
-                i = message[1]
-                #a faire
-                if type == "0":
-                    ""
-                    #compte le nb de joueurs qui entrent dans la partie et lance la partie si ça correspnd au nombre entré
-
-                #ok sem
-                #voir cartes
-                elif type == "1":
-
-                    cartes.acquire()
-                    print("envoi des cartes")
-                    cartesjoueur = Deck[int(i)]
-
-                    message = "7" + "/"
-                    for o in range(5):
-                        message += str(cartesjoueur[o][0]) + " , " +str(cartesjoueur[o][1]) + " ; "
-                    m = message.encode()
-                    Queue.send(m)
-                    print("envoi ok")
-                    cartes.release()
-
-
-                #ok sem
-                # voir offres
-                elif type == "2":
-                    echanges.acquire()
-                    print("envoi des offres")
-
-                    message = "8" + "/"
-                    if listeechanges == []:
-                        message += "il n'y a pas d'offres"
-                    else :
-                        for e in listeechanges:
-                            message += "joueur " + str(e[0]) + " ->  "
-                            for j in e[1]:
-                                message += str(j[0]) + " " +  str(j[1]) + ";"
-                            message += "\n"
-                    m = message.encode()
-                    Queue.send(m)
-                    print("envoi ok")
-                    cartes.release()
-
-
-                #ok sem
-                #ajouter offre
-                elif type == "3":
-                    print("ajout en cours")
-                    moy = message[2]
-                    echanges.acquire()
-                    cardex = []
-                    p = 0
-                    for e in Deck[int(i)]:
-                        if e[0] == moy and p < 3:
-                            p += 1
-                            cardex.append(e)
-                            print(cardex)
-                            print(p)
-
-                    listeechanges.append([i, cardex])
-                    echanges.release()
-                    print("ajout OK")
-
-                #ok sem
-                #supprimer offre
-                elif type == "4":
-                    # type / i / moy
-                    moy = message[2]
-                    accessSem(echanges)
-                    for e in listeechanges:
-                        if e[0] == i :
-                            for k in e[1]:
-                                if k[1] == moy:
-                                    accessS
-                                    listeechanges.remove(e)
-                                    echanges.release()
-
-
-                #ok sem
-                #accepter une offre et echanger des cartes
-                elif type == "5":
-                    # type / i / num offre / liste cartes
-                    accessSem(cartes)
-                    accessSem(echanges)
-                    i_offre = listeechanges[message[2][0]]
-                    listOf = listeechanges[message[2][1]]
-                    listEx = message[3]
-                    #changer les cartes du joueur qui a fait l'offre
-                    k = 0
-                    for e in Deck[i_offre:i_offre+5]:
-                        for f in listOf:
-                            if e == f:
-                                Deck[index(e)] = listEx[k]
-                                k += 1
-
-                    #changer les cartes de l'autre joueur:
-                    k = 0
-                    for e in Deck[i:i+5]:
-                        for f in listEx:
-                            if e == f:
-                                Deck[index(e)] = listOf[k]
-                                k += 1
-
-                    # on enlève l'offre
-                    for e in listeechanges:
-                        for f in listOf:
-                            if e == f:
-                                listeechanges.remove(e)
-
-                    cartes.release()
-                    echanges.release()
-
-                #a faire
-                # sonner la cloche
-                elif type == "6":
-                    accessSem(cartes)
-                    moy = Deck[i][0]
-                    c = 0
-                    for e in Deck[i:i+5]:
-                        if e[0] != moy:
-                            print("Vous n'avez pas 5 cartes identiques, continuez la partie")
-                            cartes.release()
-                        else:
-                            c += 1
-                    if c == 5:
-                        print("Bravo le joueur " , i , "remporte la partie!")
-
-
-
-                else:
-                    print("Requête non reconnue")
-                    reponse = "Requête non reconnue"
-                    reponse.encode()
-                    Queue.send(reponse)
-
-        print("Closing connexion")
-
-    '''
-	echanges = Semaphore(0)
-	state = [State.wait for i in range(nbJoueurs)]
-	threads = [threading.Thread(target = Player, args = (i, )) for i in range(nbJoueurs)]'''
-
-
-
-
-
-for thread in threads:
-    thread.start()
-for thread in threads:
-    thread.join()
+    threads = [threading.Thread(target = Game, args = (i, )) for i in range(nbJoueurs)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
