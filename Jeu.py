@@ -62,6 +62,7 @@ def finPartie():
 def Game():
     pass
 
+#marche pas
 def accessSem(sem):
     print("essaie d'acceder au sem")
     if not sem.acquire():
@@ -92,6 +93,7 @@ if __name__ == "__main__":
 
 
     Deck=distribuerCartes(nbJoueurs)
+    Deck = [[('avion', 4), ('bateau', 1), ('bateau', 3), ('avion', 5), ('voiture', 2)]]
 
     #listeechanges = [[i, liste cartes], ...]
     print(Deck)
@@ -132,9 +134,22 @@ if __name__ == "__main__":
                 #ok sem
                 # voir offres
                 elif type == "2":
-                    accessSem(echanges)
-                    print(listeechanges)
-                    echanges.release()
+                    echanges.acquire()
+                    print("envoi des offres")
+
+                    message = "8" + "/"
+                    if listeechanges == []:
+                        message += "il n'y a pas d'offres"
+                    else :
+                        for e in listeechanges:
+                            message += "joueur " + str(e[0]) + " ->  "
+                            for j in e[1]:
+                                message += str(j[0]) + " " +  str(j[1]) + ";"
+                            message += "\n"
+                    m = message.encode()
+                    Queue.send(m)
+                    print("envoi ok")
+                    cartes.release()
 
 
                 #ok sem
@@ -144,11 +159,14 @@ if __name__ == "__main__":
                     moy = message[2]
                     echanges.acquire()
                     cardex = []
+                    p = 0
                     for e in Deck[int(i)]:
-                        p = 0
                         if e[0] == moy and p < 3:
                             p += 1
                             cardex.append(e)
+                            print(cardex)
+                            print(p)
+
                     listeechanges.append([i, cardex])
                     echanges.release()
                     print("ajout OK")
