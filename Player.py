@@ -18,6 +18,8 @@ class Stateplayer:
     Sonner_cloche = 4
 
 def wait() :
+    #peut etre pas utile
+    ""
 
 def echangercartes(i):
     showcartes(i)
