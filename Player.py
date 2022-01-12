@@ -6,8 +6,7 @@ import sysv_ipc
 
 
 key = 42
-Queue = sysv_ipc.MessageQueue(key)
-
+Queue=sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
 
 """ etats player"""
 
@@ -58,7 +57,7 @@ def Player(i, ):
             showcartes(i)
             moy = input ("quel moyen de transport voulez vous echanger?")
 
-            cartes[]  # toutes les cartes de ce moyen de transport du joueurs
+            cartes = [('voiture', 3), ('voiture', 1), ('voiture', 5)]  # toutes les cartes de ce moyen de transport du joueurs
 
             if cartes.lenght() > 3:
                 cartesech = cartes[0:2]
@@ -72,7 +71,7 @@ def Player(i, ):
                     sem.release()
                     print("Un échange est déjà en cours, veuillez patienter")
                 else:
-                    listechanges.append([i, cartesech[]])
+                    listechanges.append([i, cartesech])
                     sem.release()
 
 
@@ -80,6 +79,7 @@ def Player(i, ):
 
 
         if state[i] == 4:
+            ""
 
 
 """pour montrer les cartes du joueur"""
@@ -100,6 +100,7 @@ def showechanges():
 if __name__ == "__main__":
     m = str("start").encode
     Queue.send(m)
+    state = [ 1 for i in range(nbJoueurs)]
     nbJoueurs = int(input("Combien de joueurs y aura-t-il ?\n"))
     threads = [threading.Thread(target = Player, args = (i, )) for i in range(nbJoueurs)]
     for thread in threads:
