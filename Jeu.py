@@ -275,7 +275,13 @@ if __name__ == "__main__":
     echanges = Semaphore()
     listeechanges = []
     print("Serveur en service")
-    nbJoueurs = int(input("Combien de joueurs y aura-t-il ?\n"))
+    while True:
+        try:
+            nbJoueurs = int(input("Combien de joueurs y aura-t-il ?\n"))
+            break
+        except ValueError:
+            print("\nEntrez une valeur correcte")
+
     pidJoueurs = []
 
     # on attend que tous les joueurs se connectent
