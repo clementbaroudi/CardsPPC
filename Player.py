@@ -37,7 +37,7 @@ def letsGo(i):
         entreeKo = True
         while entreeKo:
             entreeKo = False
-            touche = input("Que voulez vous faire?\nv : voir vos cartes \no : voir les offres en cours \na: ajouter une offre\ns : supprimer une offre\ne: accepter une offre\nc : sonner la cloche\n")
+            touche = input("Que voulez vous faire?\n\nv : voir vos cartes \no : voir les offres en cours \na: ajouter une offre\ns : supprimer une offre\ne: accepter une offre\nc : sonner la cloche\n")
             if touche == "v":
                 showcartes(i)
 
@@ -62,7 +62,7 @@ def letsGo(i):
                 state = 2
 
             else :
-                print("Veuillez entrer une valeur correcte")
+                print("\nVeuillez entrer une valeur correcte")
                 entreeKo = True
 
 
@@ -72,71 +72,71 @@ def letsGo(i):
         nbOffres,nbcartes, list_offresJoueur = showechanges(i)
         nbcartes_int = int(nbcartes)
         nbOffres_int = int(nbOffres)
-        
+
         if nbOffres_int == 0:
-            print("Vous ne pouvez pas faire d'échange")
+            print("\nVous ne pouvez pas faire d'échange")
         else:
             while True:
                 try:
-                    numOff = int(input("Quelle offre voulez-vous? (la première vaut 1)\n"))
+                    numOff = int(input("\nQuelle offre voulez-vous? (la première vaut 1)"))
                     break
                 except ValueError:
-                    print("Entrez une valeur correcte")
+                    print("\nEntrez une valeur correcte")
             while numOff in list_offresJoueur:
-                numOff = int(input("Vous ne pouvez pas accepter votre propre offre\n"))
+                numOff = int(input("\nVous ne pouvez pas accepter votre propre offre"))
 
             while numOff > nbOffres_int or numOff < 1:
-                numOff = int(input("Le nombre entré n'est pas valide. \nQuelle offre voulez-vous? (la première vaut 1)\n"))
+                numOff = int(input("\nLe nombre entré n'est pas valide. \nQuelle offre voulez-vous? (la première vaut 1)"))
 
             #voir les cartes du joueur
             showcartes(i)
             NotSure = True
             while NotSure :
-                print("nombre cartes")
+                print("\nNombre de cartes :")
                 print(nbcartes)
                 cartesoff = []
-                print("Quelle est la première carte que vous voulez échanger? (chiffre entre 1 et 5 )")
+                print("\nQuelle est la première carte que vous voulez échanger? (chiffre entre 1 et 5 )")
                 print("ATTENTION: si la carte est déjà dans une offre, cette offre sera supprimée")
                 while True:
                     try:
                         nb = int(input())
                         break
                     except ValueError:
-                        print("Entrez une valeur correcte")
+                        print("\nEntrez une valeur correcte")
                 while nb > 5 or nb < 1 :
-                    print ("Veuillez indiquer un nombre correct")
-                    print("Quelle est la première carte que vous voulez échanger? (chiffre entre 1 et 5 )")
+                    print ("\nVeuillez indiquer un nombre correct")
+                    print("\nQuelle est la première carte que vous voulez échanger? (chiffre entre 1 et 5 )")
                     nb = int(input())
                 cartesoff.append(nb)
 
 
                 if int(nbcartes) > 1:
-                    print("Quelle est la deuxième carte que vous voulez échanger? (chiffre entre 1 et 5 )")
+                    print("\nQuelle est la deuxième carte que vous voulez échanger? (chiffre entre 1 et 5 )")
                     while True:
                         try:
                             nb2 = int(input())
                             break
                         except ValueError:
-                            print("Entrez une valeur correcte")
+                            print("\nEntrez une valeur correcte")
                     while nb2 > 5 or nb2 < 1 or nb2 == nb:
-                        print ("Veuillez indiquer un nombre correct")
-                        print("Quelle est la première carte que vous voulez échanger? (chiffre entre 1 et 5 )")
+                        print ("\nVeuillez indiquer un nombre correct")
+                        print("\nQuelle est la première carte que vous voulez échanger? (chiffre entre 1 et 5 )")
                         nb2 = int(input())
                     cartesoff.append(nb2)
 
 
                     if int(nbcartes) > 2:
-                        print("Quelle est la troisième carte que vous voulez échanger? (chiffre entre 1 et 5 )")
+                        print("\nQuelle est la troisième carte que vous voulez échanger? (chiffre entre 1 et 5 )")
                         while True:
                             try:
                                 nb3 = int(input())
                                 break
                             except ValueError:
-                                print("Entrez une valeur correcte")
+                                print("\nEntrez une valeur correcte")
 
                         while nb3 > 5 or nb3 < 1 or nb3 == nb or nb3 == nb2:
-                            print ("Veuillez indiquer un nombre correct")
-                            print("Quelle est la première carte que vous voulez échanger? (chiffre entre 1 et 5 )")
+                            print ("\nVeuillez indiquer un nombre correct")
+                            print("\nQuelle est la première carte que vous voulez échanger? (chiffre entre 1 et 5 )")
                             nb3 = int(input())
                         cartesoff.append(nb3)
 
@@ -146,7 +146,7 @@ def letsGo(i):
                 print(cartesoff)
                 print(cartesoff_str)
                 while True:
-                    ok = input("Voulez-vous échanger vos cartes ? (oui / non)\n")
+                    ok = input("\nVoulez-vous échanger vos cartes ? (oui / non)")
                     if ok == "non":
                         NotSure = True
                         break
@@ -154,7 +154,7 @@ def letsGo(i):
                         NotSure = False
                         break
                     else :
-                        print("entrez une valeur correcte")
+                        print("\nentrez une valeur correcte")
 
 
                 m = "5" + "/" + str(i) + "/" +  str(numOff) + "/" + cartesoff_str
@@ -168,10 +168,10 @@ def letsGo(i):
     elif state == 3:
         list_moyen = showcartes(i)
         print(list_moyen)
-        moy = input ("Quel moyen de transport voulez vous echanger?\n")
+        moy = input ("\nQuel moyen de transport voulez vous echanger?")
         while moy not in list_moyen:
             print("Votre entrée n'est pas valide")
-            moy = input ("Quel moyen de transport voulez vous echanger?\n")
+            moy = input ("\nQuel moyen de transport voulez vous echanger?")
         mess = "3" + "/" + str(i) + "/" + moy
         print(mess)
         text = mess.split("/")
@@ -180,7 +180,7 @@ def letsGo(i):
         Queue.send(m)
         moyens_offre.append(moy)
         print(moyens_offre)
-        print("votre offre a été ajoutée/n")
+        print("\nVotre offre a été ajoutée")
         state = 1
 
 
@@ -202,11 +202,11 @@ def letsGo(i):
             state = 1
         else :
 
-            suppof = input("Laquelle? (entrez le moyen de transport)\n")
+            suppof = input("\nLaquelle? (entrez le moyen de transport)\n")
             while suppof not in list_moyen:
-                ("Cette offre n'existe pas")
-                suppof = input("Laquelle? (entrez le moyen de transport)\n")
-            print("Offre supprimée")
+                ("\nCette offre n'existe pas")
+                suppof = input("\nLaquelle? (entrez le moyen de transport)\n")
+            print("\nOffre supprimée")
             moyens_offre.remove(suppof)
             print(moyens_offre)
             message = "4" + "/" +  str(i) + "/" + str(suppof)
@@ -220,7 +220,6 @@ def letsGo(i):
 def showcartes(i):
     num = str("1" + "/" + str(i)).encode()
     Queue.send(num)
-    print("demande envoyée")
     listen = True
     while listen:
         requete,t = Queue.receive()
@@ -232,7 +231,7 @@ def showcartes(i):
             if message[1] == str(i):
                 if type == "7":
                     list_moyen = []
-                    print("Vos cartes sont:")
+                    print("\nVos cartes sont:")
                     cartes_str = ""
                     cards = message[2]
                     splitcartes = cards.split(";")
@@ -245,7 +244,7 @@ def showcartes(i):
                             if splitmoyen[0] not in list_moyen:
                                 list_moyen.append(splitmoyen[0])
 
-                    print(cards)
+                    """print(cards)"""
 
             listen = False
     return list_moyen
@@ -257,7 +256,6 @@ def showechanges(i):
 
     num = str("2" + "/" + str(i)).encode()
     Queue.send(num)
-    print("demande envoyée")
     listen = True
     while listen:
         requete,t = Queue.receive()
@@ -266,7 +264,7 @@ def showechanges(i):
         type = message[0]
         if message:
             if type == "8":
-                print("offre recues")
+                print("\nOffres recues")
                 string = ""
                 #on sépare les différentes offres
                 splitjoueurs = message[1].split("_")
@@ -359,7 +357,7 @@ if __name__ == "__main__":
     pid = os.getpid()
     m = str("0" + "/" + str(pid)).encode()
     i = 0
-    print("start")
+    print("Connexion établie avec le serveur, en attente d'autres joueurs...")
     Queue.send(m)
 
     # pour recevoir le num du joueur
@@ -372,7 +370,7 @@ if __name__ == "__main__":
             if message[0] == "9" :
                 if message[1] == str(pid):
                     i = int(message[2])
-                    print("Vous êtes le joueur " + str(i))
+                    print("\nVous êtes le joueur " + str(i) + ". \nJe vous souhaite la bienvenue !")
                     numRecu = False
             else:
                 Queue.send(m)
@@ -384,7 +382,7 @@ if __name__ == "__main__":
         if mess:
             message = mess.split("/")
             if message[0] == "11" :
-                print("Tous les joueurs sont connectés, la partie peut commencer.\n")
+                print("\nTous les joueurs sont connectés, la partie peut commencer.\n")
 
                 JoueursConnectes = True
             else :
