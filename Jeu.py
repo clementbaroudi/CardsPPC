@@ -62,9 +62,7 @@ def Game(i):
         mess = str(requete.decode())
 
         if mess :
-            print("message recu")
             message= mess.split("/")
-            print(message)
             type = message[0]
             i = message[1]
 
@@ -86,7 +84,7 @@ def Game(i):
 
 
 
-            # voir offres
+            # voir les offres
             elif type == "2":
                 """format :
                 8/_numjoueur|moyen1,numcarte1;moyen1, numcarte2;!nbcartes_numjoueur|moyen2, numcarte1 _numjoueur .../nbOffres
@@ -139,6 +137,12 @@ def Game(i):
 
                 nbCartes = len(cardex)
 
+				#soppression de l'ancienne offre du joueur
+				for e in listeechanges:
+					if e[0] == i:
+						listeechanges.remove(e)
+
+				#ajout de la nouvelle offre
                 listeechanges.append([i, cardex, nbCartes])
                 print(listeechanges)
                 echanges.release()
@@ -147,16 +151,15 @@ def Game(i):
 
             #supprimer offre
             elif type == "4":
-                # type / i / moy
-                moy = message[2]
+                # type / i
                 echanges.acquire()
                 print("semaphore ouvert")
                 for e in listeechanges:
-                    if e[0] == i and e[1][0][0] == moy :
-                        print("offre trouvée")
+                    if e[0] == i :
                         listeechanges.remove(e)
-                        echanges.release()
                         print("suppression ok")
+
+                echanges.release()
 
 
 
@@ -219,8 +222,10 @@ def Game(i):
                                 if cartes_echange_en_cours == cartes_echange_existantes:
                                     print("la carte etait dans une offre")
                                     listeechanges.remove(echange)
+                                else:
 
-
+					else:
+						print("Le joueur n'avait pas fait d'offre")
 
                 # on enlève l'offre
                 listeechanges.remove(listeechanges[int(message[2])-1])
@@ -238,7 +243,6 @@ def Game(i):
                 for e in Deck[i:i+5]:
                     if e[0] != moy:
                         print("Vous n'avez pas 5 cartes identiques, continuez la partie")
-
                     else:
                         c += 1
                 cartes.release()
@@ -247,7 +251,9 @@ def Game(i):
                     cloche = True
                     print("Le joueur " , i , "remporte la partie!")
                     clock.release()
+                    message = "10" + "/" + "Le joueur " + i + " remporte la partie!"
 
+            #elif suivants : correction d'une erreur où les threads consommaient un mq qui était destiné aux Player
             elif type == "7":
                 Queue.send(requete)
 
