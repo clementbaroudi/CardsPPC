@@ -29,7 +29,7 @@ Queue=sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
 
 
 
-
+#Relatif à la distribution du deck de cartes
 def creation():
     enseignes = ["avion","voiture","train","velo","pieton"]
     valeurs = [1,2,3,4,5]
