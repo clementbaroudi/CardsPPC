@@ -19,6 +19,7 @@ import os
 9: attribuer num du joueur en debut de partie
 10 : envoi gagner la partie
 11 : debut partie
+12 : envoi pas gagné la partie
 """
 
 cloche = Lock()
@@ -31,7 +32,7 @@ Queue=sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
 
 #Relatif à la distribution du deck de cartes
 def creation():
-    enseignes = ["avion","voiture","train","velo","pieton"]
+    enseignes = ["avion","voiture","train","velo","montgolfière"]
     valeurs = [1,2,3,4,5]
     return [(x,y) for x in enseignes for y in valeurs]
 
@@ -62,6 +63,7 @@ def Game(i):
         mess = str(requete.decode())
 
         if mess :
+            print(mess)
             message= mess.split("/")
             type = message[0]
             i = message[1]
@@ -136,7 +138,8 @@ def Game(i):
                         print(p)
 
                 nbCartes = len(cardex)
-
+                print("nbCartes")
+                print(nbCartes)
 				#soppression de l'ancienne offre du joueur
                 for e in listeechanges:
                     if e[0] == i:
@@ -170,11 +173,10 @@ def Game(i):
                 echanges.acquire()
 
                 i_offre = listeechanges[int(message[2])-1][0]
-                print("i offre " + i_offre)
 
                 #liste des cartes de l'offre
                 listOf = listeechanges[int(message[2])-1][1]
-                print("listof")
+                print(listOf)
                 print(listOf)
                 i_offre_int = int(i_offre)
                 listEx = []
@@ -186,9 +188,26 @@ def Game(i):
                         listEx.append(Deck[int(i)][int(t)-1])
                 print("listEx")
                 print(listEx)
+
                 #changer les cartes du joueur qui a fait l'offre
                 k = 0
                 print(Deck[i_offre_int])
+
+                #on vérifie que les cartes ne soient pas dans une autre offre
+                print("verification offre en cours")
+                for echange in listeechanges :
+                    print(echange[0])
+                    #print(type(echange[0]))
+                    if int(echange[0]) == int(i):
+
+                        for cartes_echange_en_cours in listEx:
+                            for cartes_echange_existantes in echange[1]:
+                                if cartes_echange_en_cours == cartes_echange_existantes:
+                                    print("la carte etait dans une offre")
+                                    listeechanges.remove(echange)
+                    else:
+                        print("Le joueur n'avait pas fait d'offre")
+
 
                 for e in Deck[i_offre_int]:
                     for f in listOf:
@@ -205,25 +224,12 @@ def Game(i):
                 for e in Deck[int(i)]:
 
                     for f in listEx:
-
-
                         if f == e:
                             print("carte echangee")
                             Deck[int(i)][Deck[int(i)].index(e)] = listOf[k]
                             k += 1
                 print(Deck[int(i)])
 
-                #on vérifie que les cartes ne soient pas dans une autre offre
-                print("verification offre en cours")
-                for echange in listeechanges :
-                    if echange[0] == int(i):
-                        for cartes_echange_en_cours in listEx:
-                            for cartes_echange_existantes in echange[1]:
-                                if cartes_echange_en_cours == cartes_echange_existantes:
-                                    print("la carte etait dans une offre")
-                                    listeechanges.remove(echange)
-                    else:
-                        print("Le joueur n'avait pas fait d'offre")
 
                 # on enlève l'offre
                 listeechanges.remove(listeechanges[int(message[2])-1])
@@ -231,24 +237,25 @@ def Game(i):
                 cartes.release()
                 echanges.release()
 
-            #a faire
             # sonner la cloche
             elif type == "6":
                 cartes.acquire()
                 print("verification ")
-                moy = Deck[i][0]
+                moy = Deck[int(i)][0][0]
                 c = 0
-                for e in Deck[i:i+5]:
+                for e in Deck[int(i)]:
                     if e[0] != moy:
-                        print("Vous n'avez pas 5 cartes identiques, continuez la partie")
+                        message = "12" + "/" + str(i)
+                        m = message.encode()
+                        Queue.send(m)
                     else:
                         c += 1
                 cartes.release()
                 if c == 5:
-                    clock.acquire()
-                    cloche = True
+                    cloche.acquire()
+                    clock = True
                     print("Le joueur " , i , "remporte la partie!")
-                    clock.release()
+                    cloche.release()
                     message = "10" + "/" + "Le joueur " + i + " remporte la partie!"
 
             #elif suivants : correction d'une erreur où les threads consommaient un mq qui était destiné aux Player
@@ -262,6 +269,12 @@ def Game(i):
                 Queue.send(requete)
 
             elif type == "10":
+                Queue.send(requete)
+
+            elif type == "11":
+                Queue.send(requete)
+
+            elif type == "12":
                 Queue.send(requete)
 
 
@@ -319,6 +332,3 @@ if __name__ == "__main__":
         thread.start()
     for thread in threads:
         thread.join()
-
-    if clock == True:
-        Queue.remove()

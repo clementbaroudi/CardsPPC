@@ -31,26 +31,37 @@ Queue=sysv_ipc.MessageQueue(key)
 
 def letsGo(i):
     global state
+
+    """
     #on verifie que personne n'ait sonné la cloche
     listen = True
+    print("entree lestgo")
     while listen:
+        print("while listen")
         requete,t = Queue.receive()
         mess = str(requete.decode())
-
         if mess :
+            print("message")
             message= mess.split("/")
             type = message[0]
+            print(type)
             if type == "10":
+
                 #fin partie
                 print(message[1])
             else:
                 #on remet le messgae dans la queue
                 Queue.send(requete)
-        listen = False
+            listen = False
+        else :
+            print("pas message")
+            listen = False
 
-
+        print("sortie while listen")
+    """
     #wait
     if state == 1:
+        print("state 1")
         entreeKo = True
         while entreeKo:
             entreeKo = False
@@ -87,10 +98,11 @@ def letsGo(i):
     elif state== 2:
         #voir la liste des offres
         nbOffres,nbcartes, offreJoueur = showechanges(i)
-        nbcartes_int = int(nbcartes)
         nbOffres_int = int(nbOffres)
+        if nbOffres_int == 1 and offreJoueur != -1:
+            print("\nVous êtes le seul à avoir fait une offre")
 
-        if nbOffres_int == 0:
+        elif nbOffres_int == 0:
             print("\nVous ne pouvez pas faire d'échange")
         else:
             while True:
@@ -101,7 +113,8 @@ def letsGo(i):
                 except ValueError:
                     print("\nEntrez une valeur correcte")
             while numOff == offreJoueur:
-                numOff = int(input("\nVous ne pouvez pas accepter votre propre offre"))
+                print("\nVous ne pouvez pas accepter votre propre offre")
+                numOff = int(input("\nQuelle offre voulez-vous? (la première vaut 1)"))
 
             while numOff > nbOffres_int or numOff < 1:
                 numOff = int(input("\nLe nombre entré n'est pas valide. \nQuelle offre voulez-vous? (la première vaut 1)"))
@@ -109,9 +122,9 @@ def letsGo(i):
             #on montre les cartes du joueur
             showcartes(i)
 
-
+            nbCartes_offre = nbcartes[numOff-1]
             print("\nNombre de cartes :")
-            print(nbcartes)
+            print(nbCartes_offre)
             cartesoff = []
             print("\nQuelle est la première carte que vous voulez échanger? (chiffre entre 1 et 5 )")
             print("ATTENTION: si la carte est déjà dans une offre, cette offre sera supprimée")
@@ -129,7 +142,7 @@ def letsGo(i):
             cartesoff.append(nb)
 
 
-            if int(nbcartes) > 1:
+            if int(nbCartes_offre) > 1:
                 print("\nQuelle est la deuxième carte que vous voulez échanger? (chiffre entre 1 et 5 )")
                 while True:
                     #vérification entrée valide
@@ -140,12 +153,12 @@ def letsGo(i):
                         print("\nEntrez une valeur correcte")
                 while nb2 > 5 or nb2 < 1 or nb2 == nb:
                     print ("\nVeuillez indiquer un nombre correct")
-                    print("\nQuelle est la première carte que vous voulez échanger? (chiffre entre 1 et 5 )")
+                    print("\nQuelle est la deuxième carte que vous voulez échanger? (chiffre entre 1 et 5 )")
                     nb2 = int(input())
                 cartesoff.append(nb2)
 
 
-                if int(nbcartes) > 2:
+                if int(nbCartes_offre) > 2:
                     print("\nQuelle est la troisième carte que vous voulez échanger? (chiffre entre 1 et 5 )")
                     while True:
                         #vérification entrée valide
@@ -164,9 +177,6 @@ def letsGo(i):
             cartesoff_str = ""
             for carte in cartesoff:
                 cartesoff_str += str(carte) + "?"
-            print(cartesoff)
-            print(cartesoff_str)
-
 
             m = "5" + "/" + str(i) + "/" +  str(numOff) + "/" + cartesoff_str
             m_encode = m.encode()
@@ -178,19 +188,15 @@ def letsGo(i):
     #proposer une offre
     elif state == 3:
         list_moyen = showcartes(i)
-        print(list_moyen)
         moy = input ("\nQuel moyen de transport voulez vous echanger?")
         while moy not in list_moyen:
             print("Votre entrée n'est pas valide")
             moy = input ("\nQuel moyen de transport voulez vous echanger?")
         mess = "3" + "/" + str(i) + "/" + moy
-        print(mess)
         text = mess.split("/")
-        print(type(text))
         m = mess.encode()
         Queue.send(m)
-        moyens_offre.append(moy)
-        print(moyens_offre)
+
         print("\nVotre offre a été ajoutée")
         state = 1
 
@@ -201,8 +207,23 @@ def letsGo(i):
 
     #sonner la cloche
     elif state == 4:
-        m = str("6 " + "/" + str(i)).encode()
+        print("Verification des cartes")
+        m = str("6" + "/" + str(i)).encode()
         Queue.send(m)
+        listen = True
+        while listen:
+            requete,t = Queue.receive()
+            mess = str(requete.decode())
+
+            if mess :
+                message= mess.split("/")
+                type = message[0]
+                i = message[1]
+                if type == "12":
+                    print("Vous n'avez pas 5 cartes identiques, continuez à jouer")
+                    state = 1
+
+
 
 
 
@@ -213,17 +234,8 @@ def letsGo(i):
             print("\nVous n'avez pas d'offre à supprimer")
             state = 1
         else :
-			"""
-            suppof = input("\nLaquelle? (entrez le moyen de transport)\n")
-            while suppof not in list_moyen:
-                ("\nCette offre n'existe pas")
-                suppof = input("\nLaquelle? (entrez le moyen de transport)\n")
             print("\nOffre supprimée")
-            moyens_offre.remove(suppof)
-            print(moyens_offre)
-            """
-            print("\nOffre supprimée")
-            message = "4" + "/" +  str(i) """+ "/" + str(suppof)"""
+            message = "4" + "/" +  str(i)
             m = message.encode()
             Queue.send(m)
             state = 1
@@ -258,7 +270,6 @@ def showcartes(i):
                             if splitmoyen[0] not in list_moyen:
                                 list_moyen.append(splitmoyen[0])
 
-                    """print(cards)"""
 
             listen = False
     return list_moyen
@@ -283,7 +294,7 @@ def showechanges(i):
                 string = ""
                 #on sépare les différentes offres
                 splitjoueurs = message[1].split("_")
-                nbcartes = 0
+                nbcartes = []
                 nbOffres = 0
                 for e in splitjoueurs:
                     if e == "-1":
@@ -299,7 +310,7 @@ def showechanges(i):
                         string += " : "
                         #on sépare les cartes et le nombre de cartes
                         splitcartesnombre = splitjoueurcarte[1].split("!")
-                        nbcartes = splitcartesnombre[1]
+                        nbcartes.append(splitcartesnombre[1])
                         #on sépare chaque carte
                         splitcartes = splitcartesnombre[0].split(";")
 
@@ -307,7 +318,7 @@ def showechanges(i):
                             if f != '':
                                 string += f + "; "
 
-                        string += "   nombre de cartes : " + nbcartes + "\n"
+                        string += "   nombre de cartes : " + splitcartesnombre[1] + "\n"
                         nbOffres= message[2]
 
                 print(string)
@@ -315,59 +326,9 @@ def showechanges(i):
 
     return (nbOffres, nbcartes,offreJoueur)
 
-"""
-#pour voir seulement les échanges du joueur
-def showplayeroffer(i):
-
-    num = str("2" + "/" + str(i)).encode()
-    Queue.send(num)
-    listen = True
-    NoOffer = False
-    while listen:
-        requete,t = Queue.receive()
-        mess = str(requete.decode())
-        message= mess.split("/")
-        type = message[0]
-        if message:
-            if type == "8":
-                string = "Vos offres sont :"
-                splitjoueurs = message[1].split("_")
-                list_moy = []
-                # e = _numjoueur|moyen1,numcarte1;moyen1, numcarte2;!nbcartes
-                for e in splitjoueurs:
-                    if e != '':
-
-                        splitjoueurcarte = e.split("|")
-                        # g = [_numjoueur ; (moyen1,numcarte1;moyen1, numcarte2;!nbcartes)]
-                        if splitjoueurcarte[0] == str(i):
-                            splitnbcartes = splitjoueurcarte[1].split("!")
-                            #splitnbcartes = [(moyen1,numcarte1;moyen1, numcarte2) ; (nbcartes)]
-                            splitcartesmoyens = splitnbcartes[0].split(";")
-                            #splitcartesmoyens = [(moyen1,numcarte1);(moyen1, numcarte2)]
-                            for f in splitcartesmoyens:
-                                if f != '':
-                                    moyencarte = f.split(",")
-                                    moyen = moyencarte[0]
-                                    if moyen not in list_moy:
-                                        list_moy.append(moyen)
-                                    string += f + "; "
-                            string += "\n"
-
-                        if string == "Vos offres sont :":
-                            string = "Vous n'avez pas d'offre en cours"
-                            NoOffer = True
-                        string += "\n"
-                print(string)
-            listen = False
-    nbOffresj= message[2]
-    if NoOffer :
-        return (0,0)
-    else:
-        return (nbOffresj,list_moy)
-"""
 
 if __name__ == "__main__":
-    moyens_offre = []
+
     pid = os.getpid()
     m = str("0" + "/" + str(pid)).encode()
     i = 0
