@@ -138,9 +138,9 @@ def Game(i):
                 nbCartes = len(cardex)
 
 				#soppression de l'ancienne offre du joueur
-				for e in listeechanges:
-					if e[0] == i:
-						listeechanges.remove(e)
+                for e in listeechanges:
+                    if e[0] == i:
+                        listeechanges.remove(e)
 
 				#ajout de la nouvelle offre
                 listeechanges.append([i, cardex, nbCartes])
@@ -222,10 +222,8 @@ def Game(i):
                                 if cartes_echange_en_cours == cartes_echange_existantes:
                                     print("la carte etait dans une offre")
                                     listeechanges.remove(echange)
-                                else:
-
-					else:
-						print("Le joueur n'avait pas fait d'offre")
+                    else:
+                        print("Le joueur n'avait pas fait d'offre")
 
                 # on enlève l'offre
                 listeechanges.remove(listeechanges[int(message[2])-1])
